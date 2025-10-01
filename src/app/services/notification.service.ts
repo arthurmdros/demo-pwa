@@ -13,7 +13,7 @@ export class NotificationService {
   }
 
   private connect() {
-    this.eventSource = new EventSource('http://localhost:3000/notifications');
+    this.eventSource = new EventSource('https://demo-pwa-server-production.up.railway.app/notifications');
 
     // quando a conexão abre
     this.eventSource.onopen = () => {

@@ -7,7 +7,7 @@ import { User } from '../entities/user';
 
 @Injectable()
 export class UserRepositoryImpl implements UserRepository {
-  private apiUrl = 'http://localhost:3000/users';
+  private apiUrl = 'https://demo-pwa-server-production.up.railway.app/users';
 
   constructor(private http: HttpClient, private dbOffline: DbOfflineService) {}
 
