@@ -5,7 +5,9 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
+    "build:css": "postcss src/styles.css -o public/styles.css",
     "watch": "ng build --watch --configuration development",
+    "preview": "ng build --watch --configuration production | npx http-server -p 8080 -c-1 dist/demo-pwa/browser",
     "test": "ng test"
   },
   "prettier": {
@@ -22,14 +24,22 @@
   },
   "private": true,
   "dependencies": {
+    "@angular/animations": "^20.3.2",
+    "@angular/cdk": "^20.2.5",
     "@angular/common": "^20.2.0",
     "@angular/compiler": "^20.2.0",
     "@angular/core": "^20.2.0",
     "@angular/forms": "^20.2.0",
+    "@angular/material": "^20.2.5",
     "@angular/platform-browser": "^20.2.0",
+    "@angular/platform-browser-dynamic": "^20.3.2",
     "@angular/router": "^20.2.0",
+    "@angular/service-worker": "^20.2.0",
+    "idb": "^8.0.3",
+    "reflect-metadata": "^0.2.2",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
+    "tsyringe": "^4.10.0",
     "zone.js": "~0.15.0"
   },
   "devDependencies": {
@@ -37,12 +47,15 @@
     "@angular/cli": "^20.2.1",
     "@angular/compiler-cli": "^20.2.0",
     "@types/jasmine": "~5.1.0",
+    "autoprefixer": "^10.4.21",
     "jasmine-core": "~5.9.0",
     "karma": "~6.4.0",
     "karma-chrome-launcher": "~3.2.0",
     "karma-coverage": "~2.2.0",
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "~2.1.0",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^3.4.17",
     "typescript": "~5.9.2"
   }
 }

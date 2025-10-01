@@ -1,0 +1,44 @@
+<div class="toolbar">
+  <button mat-icon-button color="primary" (click)="openUserDialog()">
+    <mat-icon class="text-xlg cursor-pointer" style="color: var(--color-primary)">
+      person_add
+    </mat-icon>
+  </button>
+  <button mat-icon-button (click)="reloadUsers()">
+    <mat-icon class="text-xlg cursor-pointer" style="color: var(--color-secondary)">
+      refresh
+    </mat-icon>
+  </button>
+</div>
+
+<div *ngIf="syncing" class="loading-container">
+  <span>Carregando usuários...</span>
+  <mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
+</div>
+
+<div *ngIf="!syncing">
+  <div class="users-grid">
+    <mat-card *ngFor="let user of pagedUsers" class="user-card">
+      <mat-card-actions class="actions">
+        <button mat-icon-button color="primary" (click)="openUserDialog(user)">
+          <mat-icon class="text-xlg cursor-pointer" style="color: var(--color-primary)">
+            edit
+          </mat-icon>
+        </button>
+        <button mat-icon-button color="warn" (click)="deleteUser(user)">
+          <mat-icon class="text-xlg text-red-400 cursor-pointer">delete</mat-icon>
+        </button>
+      </mat-card-actions>
+      <mat-card-title>{{ user.name }}</mat-card-title>
+      <mat-card-subtitle>{{ user.email }}</mat-card-subtitle>
+    </mat-card>
+  </div>
+
+  <mat-paginator
+    [length]="users.length"
+    [pageSize]="pageSize"
+    [pageSizeOptions]="[5, 10, 15]"
+    (page)="onPageChange($event)"
+  >
+  </mat-paginator>
+</div>

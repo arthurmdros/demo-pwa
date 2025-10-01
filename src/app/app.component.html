@@ -1,0 +1,143 @@
+<mat-toolbar color="primary" class="flex items-center justify-between">
+  <div class="flex-col items-center justify-center">
+    <div class="flex items-center">
+      <span class="text-sm font-bold text-white mr-2">🚀 Demo Angular PWA</span>
+      <mat-icon
+        class="text-lg mb-2 text-white cursor-pointer"
+        color="primary"
+        matTooltip="Funciona offline, possui recuperação e atualização automática!"
+      >
+        info
+      </mat-icon>
+    </div>
+    <p class="text-sm text-white mb-2">v{{ currentVersion }}</p>
+  </div>
+  <!-- Botão com badge -->
+  <button mat-icon-button color="primary" (click)="drawer.toggle()">
+    <mat-icon class="text-lg mb-2 text-white cursor-pointer">notifications</mat-icon>
+    <span
+      matBadge="{{ unreadCount$ | async }}"
+      matBadgeHidden="{{ (unreadCount$ | async) === 0 }}"
+      matBadgeColor="warn"
+    ></span>
+  </button>
+</mat-toolbar>
+
+<mat-sidenav-container>
+  <mat-sidenav #drawer mode="side" position="end" class="w-80">
+    <mat-toolbar color="accent" class="flex items-center justify-between">
+      <div class="flex-col items-center justify-center">
+        <span>Notificações</span>
+        <!-- Status da conexão -->
+        <div class="flex items-center gap-1 text-sm">
+          <mat-icon
+            [ngClass]="{
+              'text-green-400': (status$ | async) === 'connected',
+              'text-yellow-400': (status$ | async) === 'connecting',
+              'text-red-400': (status$ | async) === 'disconnected'
+            }"
+          >
+            fiber_manual_record
+          </mat-icon>
+          <span>Status da fila</span>
+        </div>
+      </div>
+      <button mat-icon-button (click)="clearAll()">
+        <mat-icon class="text-lg mb-2 text-white cursor-pointer">notifications_off</mat-icon>
+      </button>
+    </mat-toolbar>
+
+    <mat-list>
+      <mat-list-item *ngFor="let n of notifications$ | async">
+        <div class="flex items-center justify-between">
+          <div class="flex-col items-center justify-center">
+            <div matLine [ngClass]="{ 'font-bold': !n.read }">
+              {{ n.message }}
+            </div>
+            <div matLine class="text-xs text-gray-500">
+              {{ n.timestamp | date : 'shortTime' }}
+            </div>
+          </div>
+          <div class="flex items-center">
+            <button mat-icon-button (click)="markAsRead(n.id)">
+              <mat-icon class="text-xlg text-green-400 cursor-pointer">done</mat-icon>
+            </button>
+            <button mat-icon-button (click)="removeNotification(n.id)">
+              <mat-icon class="text-xlg text-red-400 cursor-pointer">delete</mat-icon>
+            </button>
+          </div>
+        </div>
+      </mat-list-item>
+    </mat-list>
+  </mat-sidenav>
+
+  <mat-sidenav-content>
+    <!-- Conteúdo principal -->
+    <div class="flex flex-col min-h-screen bg-gray-100 p-6">
+      <!-- Tela de offline -->
+      <app-offline *ngIf="offline"></app-offline>
+      <app-user-list [offline]="offline"></app-user-list>
+      <!-- Logs de teste -->
+      <ul class="mb-3">
+        <li
+          *ngFor="let log of logs"
+          [ngClass]="{
+            'text-gray-600': log.status === 'pendente',
+            'text-yellow-600': log.status === 'detectado',
+            'text-green-600': log.status === 'recuperado'
+          }"
+        >
+          {{ log.scenario }} - {{ log.status }} <span *ngIf="log.message">({{ log.message }})</span>
+        </li>
+      </ul>
+
+      <!-- Floating theme Action Button -->
+
+      <button
+        [matMenuTriggerFor]="themeMenu"
+        class="fixed bottom-8 left-8 w-16 h-16 rounded-full bg-blue-600 text-white flex items-center justify-center shadow-lg hover:bg-blue-700 transition duration-300"
+      >
+        <mat-icon>brightness_6</mat-icon>
+      </button>
+      <mat-menu #themeMenu="matMenu">
+        <button mat-menu-item (click)="toggleTheme('light')">
+          <mat-icon>light_mode</mat-icon>
+          <span>Claro</span>
+        </button>
+        <button mat-menu-item (click)="toggleTheme('dark')">
+          <mat-icon>dark_mode</mat-icon>
+          <span>Escuro</span>
+        </button>
+        <button mat-menu-item (click)="toggleTheme('system')">
+          <mat-icon>settings</mat-icon>
+          <span>Sistema</span>
+        </button>
+      </mat-menu>
+
+      <!-- Floating Action Button -->
+      <button
+        matTooltip="Testar recuperação"
+        (click)="testRecovery()"
+        class="fixed bottom-8 right-8 w-16 h-16 rounded-full bg-red-600 text-white flex items-center justify-center shadow-lg hover:bg-red-700 transition duration-300"
+      >
+        ⚡
+      </button>
+    </div>
+
+    <!-- Banner de atualização -->
+    <div
+      *ngIf="updateAvailable"
+      class="fixed bottom-0 left-0 w-full bg-yellow-400 text-gray-900 py-3 px-4 flex items-center justify-between shadow-md animate-bounce"
+    >
+      <span class="font-medium">
+        ⚡ Nova versão disponível ({{ latestVersion }})! Atualizando em {{ countdown }}s...
+      </span>
+      <button
+        class="ml-4 px-4 py-1 bg-gray-900 text-white rounded-lg hover:bg-gray-700"
+        (click)="reload()"
+      >
+        Atualizar agora
+      </button>
+    </div>
+  </mat-sidenav-content>
+</mat-sidenav-container>

@@ -1,0 +1,112 @@
+/* ------------------------------
+  🎨 Tema Claro (default)
+------------------------------ */
+:root {
+  /* Backgrounds e texto */
+  --bg-color: #ffffff;
+  --text-color: #222222;
+  --card-bg: #f5f5f5;
+  --card-shadow: rgba(0, 0, 0, 0.08);
+
+  /* Paleta principal */
+  --color-primary: #1976d2; /* Azul Material */
+  --color-secondary: #9c27b0; /* Roxo */
+  --color-tertiary: #ff9800; /* Laranja */
+
+  /* Estados */
+  --color-success: #4caf50; /* Verde */
+  --color-error: #f44336; /* Vermelho */
+  --color-warning: #ffeb3b; /* Amarelo */
+  --color-info: #2196f3; /* Azul claro */
+}
+
+/* ------------------------------
+  🌙 Tema Escuro (forçado)
+------------------------------ */
+:root.dark-theme {
+  --bg-color: #121212;
+  --text-color: #eaeaea;
+  --card-bg: #1e1e1e;
+  --card-shadow: rgba(0, 0, 0, 0.6);
+
+  --color-primary: #90caf9; /* Azul claro */
+  --color-secondary: #ce93d8; /* Roxo claro */
+  --color-tertiary: #ffb74d; /* Laranja claro */
+
+  --color-success: #81c784; /* Verde claro */
+  --color-error: #ef9a9a; /* Vermelho claro */
+  --color-warning: #fff59d; /* Amarelo claro */
+  --color-info: #64b5f6; /* Azul suave */
+}
+
+/* ------------------------------
+  ⚙️ Tema System (usa preferências do SO)
+------------------------------ */
+@media (prefers-color-scheme: dark) {
+  :root:not(.light-theme):not(.dark-theme) {
+    --bg-color: #121212;
+    --text-color: #eaeaea;
+    --card-bg: #1e1e1e;
+    --card-shadow: rgba(0, 0, 0, 0.6);
+
+    --color-primary: #90caf9;
+    --color-secondary: #ce93d8;
+    --color-tertiary: #ffb74d;
+
+    --color-success: #81c784;
+    --color-error: #ef9a9a;
+    --color-warning: #fff59d;
+    --color-info: #64b5f6;
+  }
+}
+
+
+html, body {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Toolbar */
+mat-toolbar {
+  background-color: var(--color-primary) !important;
+  color: #fff !important;
+}
+
+/* Cards */
+mat-card {
+  background-color: var(--card-bg) !important;
+  color: var(--text-color) !important;
+  box-shadow: 0 2px 8px var(--card-shadow) !important;
+}
+
+/* Botões auxiliares (exemplo) */
+.btn-success {
+  background-color: var(--color-success);
+  color: #fff;
+}
+
+.btn-error {
+  background-color: var(--color-error);
+  color: #fff;
+}
+
+.btn-warning {
+  background-color: var(--color-warning);
+  color: #000;
+}
+
+.btn-info {
+  background-color: var(--color-info);
+  color: #fff;
+}
+
+/* Transições suaves */
+* {
+  transition: background-color 0.25s ease, color 0.25s ease, box-shadow 0.25s ease;
+}
