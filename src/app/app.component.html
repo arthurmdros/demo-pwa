@@ -34,7 +34,7 @@
             [ngClass]="{
               'text-green-400': (status$ | async) === 'connected',
               'text-yellow-400': (status$ | async) === 'connecting',
-              'text-red-400': (status$ | async) === 'disconnected'
+              'text-red-400': (status$ | async) === 'disconnected' || (status$ | async) === 'error'
             }"
           >
             fiber_manual_record

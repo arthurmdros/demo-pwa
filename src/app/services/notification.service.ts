@@ -44,8 +44,8 @@ export class NotificationService {
       this.zone.run(() => {
         try {
           const status = JSON.parse(event.data);
-          if (status === 'connected') this.connectionStatus$.next('connected');
-          else if (status === 'disconnected') this.connectionStatus$.next('disconnected');
+          if (status['connected']) this.connectionStatus$.next('connected');
+          else if (status['disconnected']) this.connectionStatus$.next('disconnected');
           else this.connectionStatus$.next('error');
         } catch {
           this.connectionStatus$.next('error');
