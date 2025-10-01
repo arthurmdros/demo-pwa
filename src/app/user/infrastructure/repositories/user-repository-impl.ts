@@ -9,14 +9,46 @@ export class UserRepositoryImpl implements UserRepository {
   private apiUrl = 'https://demo-pwa-server-production.up.railway.app/users';
 
   constructor(private http: HttpClient, private dbOffline: DbOfflineService) {}
-
   async fetchUsers(): Promise<User[]> {
     try {
+      // 1. Verifica pendências (criar/atualizar/remover)
+      const pending = await this.dbOffline.getAll<User>('pending-users');
+      if (pending.length > 0) {
+        console.log('⏫ Enviando pendências para backend...', pending);
+
+        for (const user of pending) {
+          try {
+            if ((user as any)._delete) {
+              // usuário marcado como removido
+              await this.http.delete(`${this.apiUrl}/${user.id}`).toPromise();
+            } else if ((user as any)._update) {
+              // usuário marcado como atualizado
+              await this.http.put(`${this.apiUrl}/${user.id}`, user).toPromise();
+            } else {
+              // usuário novo
+              await this.http.post(this.apiUrl, user).toPromise();
+            }
+
+            // remove pendência após sucesso
+            await this.dbOffline.delete('pending-users', user.id);
+          } catch (err) {
+            console.warn('⚠️ Falha ao sincronizar pendência', user, err);
+          }
+        }
+      }
+
+      // 2. Busca backend atualizado
       const users = (await this.http.get<User[]>(this.apiUrl).toPromise()) || [];
+
+      // 3. Atualiza cache local
       await this.dbOffline.clear('users');
-      for (const user of users) await this.dbOffline.add('users', user);
+      for (const user of users) {
+        await this.dbOffline.add('users', user);
+      }
+
       return users;
     } catch (err) {
+      // se offline, usa cache
       console.warn('⚠️ Offline, carregando do IndexedDB...', err);
       return await this.dbOffline.getAll<User>('users');
     }
