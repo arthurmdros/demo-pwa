@@ -1,15 +1,14 @@
-import { bootstrapApplication } from '@angular/platform-browser';
 import 'reflect-metadata';
-import { AppComponent } from './app/app.component';
-import { appConfig } from './app/app.config';
 
-import { container } from 'tsyringe';
-import { UserRepository } from './app/user/domain/repositories/user-repository';
-import { UserRepositoryImpl } from './app/user/infrastructure/repositories/user-repository-impl';
+import { platformBrowser } from '@angular/platform-browser';
+import { AppModule } from './app/app.module';
+import { InitilizerDI } from './app/di/app.di';
+import { UserDI } from './app/user/user.module.di';
 
-// Registrando repositórios no container
-container.register<UserRepository>('UserRepository', { useClass: UserRepositoryImpl });
+const initilizerDI = new InitilizerDI(new UserDI());
 
+initilizerDI.setup();
 
-bootstrapApplication(AppComponent, appConfig).catch((err) => console.error(err));
-
+platformBrowser()
+  .bootstrapModule(AppModule)
+  .catch((err) => console.error(err));

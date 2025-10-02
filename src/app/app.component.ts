@@ -1,20 +1,7 @@
-import { CommonModule } from '@angular/common';
-import { Component, HostListener } from '@angular/core';
-import { MatBadgeModule } from '@angular/material/badge';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { MatIconModule } from '@angular/material/icon';
-import { MatListModule } from '@angular/material/list';
-import { MatMenuModule } from '@angular/material/menu';
-import { MatPaginatorIntl, MatPaginatorModule } from '@angular/material/paginator';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSidenavModule } from '@angular/material/sidenav';
-import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { map, Observable } from 'rxjs';
-import { OfflineComponent } from './components/offline.component';
-import { CustomPaginator } from './services/custom-paginator-intl';
+import { map, Observable, Subscription } from 'rxjs';
+import { ConnectionService } from './services/connection.service';
 import {
   ConnectionStatus,
   NotificationItem,
@@ -23,7 +10,6 @@ import {
 import { RecoveryService } from './services/recovery.service';
 import { ThemeService } from './services/theme.service';
 import { UpdateService } from './services/update.service';
-import { UserListComponent } from './user-locator/ui/pages/users-list/users-list.component';
 
 interface RecoveryTestLog {
   scenario: string;
@@ -32,37 +18,16 @@ interface RecoveryTestLog {
 }
 
 @Component({
+  standalone: false,
   selector: 'app-root',
-  standalone: true,
-  imports: [
-    CommonModule,
-    OfflineComponent,
-    UserListComponent,
-    MatTooltipModule,
-    MatSidenavModule,
-    MatToolbarModule,
-    MatListModule,
-    MatIconModule,
-    MatButtonModule,
-    MatBadgeModule,
-    MatCardModule,
-    MatPaginatorModule,
-    MatProgressSpinnerModule,
-    MatMenuModule,
-  ],
-  providers: [
-    UpdateService,
-    RecoveryService,
-    NotificationService,
-    { provide: MatPaginatorIntl, useFactory: CustomPaginator },
-  ],
   templateUrl: './app.component.html',
 })
-export class AppComponent {
+export class AppComponent implements OnInit, OnDestroy{
   logs: RecoveryTestLog[] = [];
   updateAvailable = false;
   countdown = 10;
-  offline = !navigator.onLine;
+  online = true;
+  private onlineStatus!: Subscription;
 
   // Versões
   currentVersion: string;
@@ -76,6 +41,7 @@ export class AppComponent {
 
   constructor(
     public dialog: MatDialog,
+    protected connectionService: ConnectionService,
     protected update: UpdateService,
     protected recovery: RecoveryService,
     protected notificationService: NotificationService,
@@ -97,14 +63,14 @@ export class AppComponent {
     });
   }
 
-  @HostListener('window:offline')
-  async onOffline() {
-    this.offline = true;
+  ngOnInit() {
+    this.onlineStatus = this.connectionService.online$.subscribe((status) => {
+      this.online = status;
+    });
   }
 
-  @HostListener('window:online')
-  async onOnline() {
-    this.offline = false;
+  ngOnDestroy() {
+    this.onlineStatus.unsubscribe();
   }
 
   // ------------------ UPDATE HANDLING ------------------

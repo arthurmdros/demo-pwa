@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 
 @Component({
+  standalone: false,
   selector: 'app-offline',
   template: `
     <div class="flex flex-col items-center justify-center z-50">
