@@ -75,8 +75,8 @@
     <!-- Conteúdo principal -->
     <div class="flex flex-col min-h-screen bg-gray-100 p-6">
       <!-- Tela de offline -->
-      <app-offline *ngIf="offline"></app-offline>
-      <app-user-list [offline]="offline"></app-user-list>
+      <app-offline *ngIf="!online"></app-offline>
+      <app-user-list [online]="online"></app-user-list>
       <!-- Logs de teste -->
       <ul class="mb-3">
         <li
