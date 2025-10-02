@@ -6,8 +6,8 @@ import { environment as envProd } from '../../environments/environment.prod';
 
 const LOCAL_VERSION_KEY = 'app_current_version';
 const VERSION_JSON_PATH = '/assets/version.json';
-const POLLING_INTERVAL = 1 * 1 * 15000; // 5 minutos
-// const POLLING_INTERVAL = 15000; // 15 seg
+// const POLLING_INTERVAL = 5 * 60 * 1000; // 5 minutos
+const POLLING_INTERVAL = 30000; // 30 seg
 
 @Injectable({ providedIn: 'root' })
 export class UpdateService {
