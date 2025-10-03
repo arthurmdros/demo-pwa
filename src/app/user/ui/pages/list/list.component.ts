@@ -1,4 +1,4 @@
-import { Component, HostListener, Input } from '@angular/core';
+import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { PageEvent } from '@angular/material/paginator';
 import { User } from '../../../data/models/dto';
@@ -13,7 +13,7 @@ import { UserFormDialogComponent } from '../form/form.component';
   templateUrl: './list.component.html',
   styleUrls: ['./list.component.css'],
 })
-export class UserListComponent {
+export class UserListComponent implements OnChanges {
   @Input() online = false;
 
   users: User[] = [];
@@ -22,25 +22,16 @@ export class UserListComponent {
   currentPage = 0;
   syncing = false;
 
-  constructor(
-    public dialog: MatDialog,
-    private userViewModel: UserViewModel
-  ) {}
+  constructor(public dialog: MatDialog, private userViewModel: UserViewModel) {}
 
   async ngOnInit() {
     await this.loadUsers();
   }
 
-  @HostListener('window:offline')
-  async onOffline() {
-    this.online = false;
-    await this.loadUsers();
-  }
-
-  @HostListener('window:online')
-  async onOnline() {
-    this.online = true;
-    await this.loadUsers();
+  async ngOnChanges(changes: SimpleChanges) {
+    if (changes['online'].currentValue) {
+      await this.loadUsers();
+    }
   }
 
   private async loadUsers() {

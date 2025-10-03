@@ -1,68 +1,61 @@
 import { Injectable, NgZone } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
-import { distinctUntilChanged } from 'rxjs/operators';
 
 @Injectable({ providedIn: 'root' })
 export class ConnectionService {
-  // Emite somente quando o status realmente muda
   public online$ = new BehaviorSubject<boolean>(navigator.onLine);
 
-  private backoffInterval = 2000; // começa com 2s
-  private maxBackoff = 60000; // máximo de 1 minuto
-  private reconnectTimeout: any;
+  private checkRetries = 3; // nº de tentativas
+  private checkDelay = 2000; // intervalo entre tentativas
+  private checking = false;
 
   constructor(private ngZone: NgZone) {
-    // Eventos nativos do navegador
-    window.addEventListener('online', () => this.updateStatus(true));
-    window.addEventListener('offline', () => this.updateStatus(false));
+    // Eventos do navegador
+    window.addEventListener('online', () => this.handleStatusChange(true));
+    window.addEventListener('offline', () => this.handleStatusChange(false));
 
-    // Se iniciou offline, começa tentativa de reconexão
-    if (!navigator.onLine) this.scheduleReconnect();
+    // Estado inicial
+    this.handleStatusChange(navigator.onLine);
+  }
 
-    // Opcional: Distinct para evitar emissões repetidas
-    this.online$ = new BehaviorSubject<boolean>(navigator.onLine).pipe(
-      distinctUntilChanged()
-    ) as BehaviorSubject<boolean>;
+  // Sempre que o navegador mudar status
+  private async handleStatusChange(browserStatus: boolean) {
+    if (!this.checking) {
+      this.checking = true;
+      await this.checkInternetMultiple(browserStatus);
+      this.checking = false;
+    }
+  }
+
+  // Faz até N verificações reais
+  private async checkInternetMultiple(expected: boolean) {
+    let lastResult = expected;
+
+    for (let i = 0; i < this.checkRetries; i++) {
+      const result = await this.isOnline();
+      lastResult = result;
+
+      if (result === expected) {
+        // confirma o status esperado
+        this.updateStatus(result);
+        return;
+      }
+
+      // espera antes de tentar de novo
+      await this.delay(this.checkDelay);
+    }
+
+    // se mesmo após 3 tentativas não confirmou, assume último resultado
+    this.updateStatus(lastResult);
   }
 
   private updateStatus(status: boolean) {
-    this.ngZone.run(() => {
-      if (this.online$.value !== status) {
-        this.online$.next(status);
-      }
-    });
-
-    if (!status) this.scheduleReconnect();
-    else this.clearReconnect();
+    this.ngZone.run(() => this.online$.next(status));
   }
 
-  private scheduleReconnect() {
-    if (this.reconnectTimeout) return;
-
-    this.reconnectTimeout = setTimeout(async () => {
-      const online = await this.isOnline();
-      this.updateStatus(online);
-
-      if (!online) {
-        // backoff exponencial
-        this.backoffInterval = Math.min(this.backoffInterval * 2, this.maxBackoff);
-        this.reconnectTimeout = null; // limpa para novo agendamento
-        this.scheduleReconnect();
-      }
-    }, this.backoffInterval);
-  }
-
-  private clearReconnect() {
-    if (this.reconnectTimeout) {
-      clearTimeout(this.reconnectTimeout);
-      this.reconnectTimeout = null;
-    }
-    this.backoffInterval = 2000; // reseta para valor inicial
-  }
-
-  // Checagem real de conexão
-  public async isOnline(): Promise<boolean> {
-    if (!navigator.onLine) return false;
+  // Testa conectividade real
+  private async isOnline(): Promise<boolean> {
+    // if (!navigator.onLine) return false;
 
     try {
       const controller = new AbortController();
@@ -81,10 +74,7 @@ export class ConnectionService {
     }
   }
 
-  // Permite checagem manual, ex.: ao tentar enviar dados
-  public async checkOnline(): Promise<boolean> {
-    const online = await this.isOnline();
-    this.updateStatus(online);
-    return online;
+  private delay(ms: number) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 }

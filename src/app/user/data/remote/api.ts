@@ -8,10 +8,8 @@ import { User } from '../models/dto';
 export class UserApi {
   private apiUrl = 'https://demo-pwa-server-production.up.railway.app/users';
 
-  constructor(
-    private http: HttpClient,
-    private dbOffline: DbOfflineService
-  ) {}
+  constructor(private http: HttpClient, private dbOffline: DbOfflineService) {}
+
   async fetchUsers(): Promise<User[]> {
     try {
       // 1. Verifica pendências (criar/atualizar/remover)
